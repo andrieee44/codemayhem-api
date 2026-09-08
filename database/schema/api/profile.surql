@@ -1,6 +1,8 @@
 DEFINE API "/profile/:id"
   FOR get
-  MIDDLEWARE api::res::body()
+  MIDDLEWARE
+    api::res::body()
+  PERMISSIONS WHERE !!$auth
   THEN {
     LET $user = SELECT * FROM ONLY type::record(
       "users", type::uuid($request.params.id)
@@ -9,7 +11,7 @@ DEFINE API "/profile/:id"
     IF !$user {
       RETURN {
         status: 404,
-        body: { error: "Not found" }
+        body: "Not found"
       };
     };
 

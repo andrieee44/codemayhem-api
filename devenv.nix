@@ -1,14 +1,10 @@
-{
-  config,
-  inputs,
-  pkgs,
-  ...
-}:
+{ inputs, pkgs, ... }:
 let
   nixsurrealdb = inputs.nixsurrealdb.packages."${pkgs.stdenv.hostPlatform.system}";
 in
 {
   env.NIXPKGS_ALLOW_UNFREE = "1";
+  languages.nix.enable = true;
 
   git-hooks.hooks = {
     # Bash
@@ -17,10 +13,6 @@ in
 
     # Link checker
     lychee.enable = true;
-
-    # Go
-    gofmt.enable = true;
-    golangci-lint.enable = true;
 
     # Markdown
     markdownlint = {
@@ -42,12 +34,6 @@ in
     nixfmt.enable = true;
     statix.enable = true;
 
-    flake-checks = {
-      enable = true;
-      entry = ''nix flake check --impure --all-systems "${config.git.root}"'';
-      pass_filenames = false;
-    };
-
     # TOML
     check-toml.enable = true;
     taplo.enable = true;
@@ -55,11 +41,6 @@ in
     # YAML
     check-yaml.enable = true;
     yamllint.enable = true;
-  };
-
-  languages = {
-    go.enable = true;
-    nix.enable = true;
   };
 
   packages =
