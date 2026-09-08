@@ -3,29 +3,31 @@ DEFINE API "/otp"
   MIDDLEWARE
     api::req::body(),
     api::res::body()
+  PERMISSIONS FULL
   THEN {
     LET $email = string::lowercase(string::trim($request.body.email));
 
-    IF !string::is_email($email)
-      OR string::split($email, "@")[1] != $EMAIL_DOMAIN
-    {
+    IF (
+      !string::is_email($email)
+        OR string::split($email, "@")[1] != $EMAIL_DOMAIN
+    ) {
       RETURN {
         status: 400,
         body: "Bad Request"
       };
     };
 
-    LET $otp = SELECT * FROM otps WHERE email = $email;
+    LET $otp = (SELECT * FROM otps WHERE email = $email)[0];
 
-    IF !!$otp AND $otp[0].updated_at + $OTP_TTL > time::now() {
+    IF !!$otp AND $otp.updated_at + $OTP_TTL > time::now() {
       RETURN {
         status: 429,
-        headers: { "Retry-After": <string>($otp[0].updated_at + $OTP_TTL) },
+        headers: { "Retry-After": <string>($otp.updated_at + $OTP_TTL) },
         body: "Too Many Requests"
       };
     };
 
-    LET $retry_at = fn::retry_at("POST /otp", 200, 1d);
+    LET $retry_at = fn::retry_at("POST /otp", $OTP_MAX_COUNT, $OTP_WINDOW);
 
     IF !!$retry_at {
       RETURN {
@@ -44,9 +46,26 @@ DEFINE API "/otp"
       port: $MAILMS_PORT,
       from: $MAILMS_USER,
       to: [ $email ],
-      subject: "CodeMayhem OTP",
+      subject: "Your CodeMayhem OTP is ready",
       headers: [ { key: "Content-Type", value: "text/html; charset=UTF=8" } ],
-      body: "<p>Your OTP is " + $pass + "</p>"
+      body: "
+        <p>Hi,</p>
+        <p>
+          We received a request that requires verification of your CodeMayhem
+          account.
+        </p>
+        <p>Your one-time verification code is:</p>
+        <h2 style=\"letter-spacing: 4px;\">" + $pass + "</h2>
+        <p>
+          This code will expire in <strong>" + <string>$OTP_TTL + "</strong>.
+          For your security, please do not share this code with anyone.
+        </p>
+        <p>
+          If you did not request this code, you can safely ignore this email.
+          No action will be taken using this code without your authorization.
+        </p>
+        <p>Thanks,<br> The CodeMayhem Team</p>
+      "
     });
 
     UPSERT otps

@@ -6,11 +6,11 @@ DEFINE FUNCTION fn::retry_at(
   LET $now = time::now();
 
   LET $limit = UPSERT ONLY type::record('ratelimits', $limit_id)
-    REPLACE {
+    MERGE {
       IF started_at = NONE OR started_at + $window <= $now {
         RETURN { count: 1, started_at: $now };
       } ELSE {
-        RETURN { count: count + 1, started_at: started_at };
+        RETURN { count: count + 1 };
       }
     };
 

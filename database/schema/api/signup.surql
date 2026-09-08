@@ -5,6 +5,21 @@ DEFINE API "/signup"
     api::res::body()
   PERMISSIONS WHERE $auth = NONE
   THEN {
+    LET $otp = fn::get_otp($request.body.email, $request.body.otp);
+
+    IF (
+      $otp = NONE
+        OR $request.body.email = NONE
+        OR $request.body.otp = NONE
+        OR $request.body.pass = NONE
+        OR $request.body.username = NONE
+    ) {
+      RETURN {
+        status: 400,
+        body: "Bad Request"
+      };
+    };
+
     IF !!(
       SELECT * FROM users
       WHERE email = $request.body.email
@@ -13,18 +28,6 @@ DEFINE API "/signup"
       RETURN {
         status: 409,
         body: "Conflict"
-      };
-    };
-
-    LET $otp = SELECT * FROM otps
-      WHERE crypto::argon2::compare(pass, $request.body.otp)
-        AND email = $request.body.email
-        AND updated_at + $OTP_TTL > time::now();
-
-    IF $otp[0] = NONE {
-      RETURN {
-        status: 400,
-        body: "Bad Request"
       };
     };
 
