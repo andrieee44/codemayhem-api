@@ -5,9 +5,10 @@ DEFINE API "/email"
     api::res::body()
   PERMISSIONS WHERE !!$auth
   THEN {
-    LET $otp = fn::get_otp($auth.email, $request.body.otp);
+    LET $otpOld = fn::get_otp($auth.email, $request.body.otpOld);
+    LET $otpNew = fn::get_otp($request.body.email, $request.body.otpNew);
 
-    IF $otp = NONE OR $request.body.email = NONE {
+    IF $otpOld = NONE OR $otpNew = NONE {
       RETURN {
         status: 400,
         body: "Bad Request"
@@ -22,7 +23,7 @@ DEFINE API "/email"
     };
 
     UPDATE $auth MERGE { email: $request.body.email };
-    DELETE $otp;
+    DELETE [ $otpOld, $otpNew ];
 
     RETURN {
       status: 204,
