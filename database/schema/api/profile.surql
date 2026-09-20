@@ -8,7 +8,7 @@ DEFINE API "/profile/:id"
       "users", type::uuid($request.params.id)
     );
 
-    IF !$user {
+    IF $user = NONE {
       RETURN {
         status: 404,
         body: "Not found"

@@ -6,6 +6,4 @@ DEFINE TABLE bookmarked SCHEMAFULL TYPE RELATION
 
 DEFINE FIELD id ON bookmarked TYPE uuid;
 
-DEFINE FIELD created_at ON bookmarked TYPE datetime
-  DEFAULT time::now()
-  READONLY;
+DEFINE INDEX uq_bookmarked_in_out ON bookmarked FIELDS in, out UNIQUE;

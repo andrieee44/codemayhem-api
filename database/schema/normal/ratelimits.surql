@@ -1,6 +1,5 @@
 DEFINE TABLE ratelimits SCHEMAFULL TYPE NORMAL
-  PERMISSIONS
-    FOR create, select, update, delete NONE;
+  PERMISSIONS NONE;
 
 DEFINE FIELD id         ON ratelimits TYPE string;
 DEFINE FIELD count      ON ratelimits TYPE int      DEFAULT 1;

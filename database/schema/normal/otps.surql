@@ -1,6 +1,5 @@
 DEFINE TABLE otps SCHEMAFULL TYPE NORMAL
-  PERMISSIONS
-    FOR create, select, update, delete NONE;
+  PERMISSIONS NONE;
 
 DEFINE FIELD id         ON otps TYPE uuid;
 DEFINE FIELD updated_at ON otps TYPE datetime VALUE time::now();

@@ -6,13 +6,13 @@ DEFINE FUNCTION fn::retry_at(
   LET $now = time::now();
 
   LET $limit = UPSERT ONLY type::record('ratelimits', $limit_id)
-    MERGE {
+    MERGE (
       IF started_at = NONE OR started_at + $window <= $now {
         RETURN { count: 1, started_at: $now };
       } ELSE {
         RETURN { count: count + 1 };
       }
-    };
+    );
 
   IF $limit.count > $max_count {
     RETURN $limit.started_at + $window

@@ -17,7 +17,8 @@ DEFINE API "/otp"
       };
     };
 
-    LET $otp = (SELECT * FROM otps WHERE email = $email)[0];
+    LET $otp = SELECT * FROM ONLY otps
+      WHERE email = $email;
 
     IF !!$otp AND $otp.updated_at + $OTP_TTL > time::now() {
       RETURN {
