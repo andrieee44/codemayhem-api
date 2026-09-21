@@ -1,8 +1,7 @@
 DEFINE TABLE attempted SCHEMAFULL TYPE RELATION
   IN users OUT problems ENFORCED
   PERMISSIONS
-    FOR create WHERE !!$auth
-    FOR select, update, delete WHERE $auth.id = in.id;
+    FOR create, select, update, delete WHERE $auth.id = in.id;
 
 DEFINE FIELD id         ON attempted TYPE uuid;
 DEFINE FIELD solution   ON attempted TYPE string;

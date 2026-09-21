@@ -8,4 +8,8 @@ inputs:
   nixsurrealdb:
     url: github:andrieee44/nixsurrealdb
 
+nixpkgs:
+  permitted_unfree_packages:
+    - surreal
+
 reload: false

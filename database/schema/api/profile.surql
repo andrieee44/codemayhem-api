@@ -4,8 +4,9 @@ DEFINE API "/profile/:id"
     api::res::body()
   PERMISSIONS WHERE !!$auth
   THEN {
-    LET $user = SELECT * FROM ONLY type::record(
-      "users", type::uuid($request.params.id)
+    LET $user: option<object> = SELECT * FROM ONLY type::record(
+      "users",
+      type::uuid($request.params.id)
     );
 
     IF $user = NONE {

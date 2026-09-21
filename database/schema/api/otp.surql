@@ -5,7 +5,7 @@ DEFINE API "/otp"
     api::res::body()
   PERMISSIONS FULL
   THEN {
-    LET $email = string::lowercase(string::trim($request.body.email));
+    LET $email: string = string::lowercase(string::trim($request.body.email));
 
     IF (
       !string::is_email($email)
@@ -17,7 +17,7 @@ DEFINE API "/otp"
       };
     };
 
-    LET $otp = SELECT * FROM ONLY otps
+    LET $otp: option<object> = SELECT * FROM ONLY otps
       WHERE email = $email;
 
     IF !!$otp AND $otp.updated_at + $OTP_TTL > time::now() {
@@ -28,7 +28,11 @@ DEFINE API "/otp"
       };
     };
 
-    LET $retry_at = fn::retry_at("POST /otp", $OTP_MAX_COUNT, $OTP_WINDOW);
+    LET $retry_at: option<datetime> = fn::retry_at(
+      "POST /otp",
+      $OTP_MAX_COUNT,
+      $OTP_WINDOW
+    );
 
     IF !!$retry_at {
       RETURN {
@@ -38,7 +42,7 @@ DEFINE API "/otp"
       };
     };
 
-    LET $pass = <string>rand::int(100000, 999999);
+    LET $pass: string = <string>rand::int(100000, 999999);
 
     http::post($MAILMS_URL + "/mail", {
       user: $MAILMS_USER,
@@ -65,7 +69,7 @@ DEFINE API "/otp"
           If you did not request this code, you can safely ignore this email.
           No action will be taken using this code without your authorization.
         </p>
-        <p>Thanks,<br> The CodeMayhem Team</p>
+        <p>Thanks,<br>The CodeMayhem Team</p>
       "
     });
 

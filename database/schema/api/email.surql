@@ -5,8 +5,15 @@ DEFINE API "/email"
     api::res::body()
   PERMISSIONS WHERE !!$auth
   THEN {
-    LET $otpOld = fn::get_otp($auth.email, $request.body.otpOld);
-    LET $otpNew = fn::get_otp($request.body.email, $request.body.otpNew);
+    LET $otpOld: option<object> = fn::get_otp(
+      $auth.email,
+      $request.body.otpOld
+    );
+
+    LET $otpNew: option<object> = fn::get_otp(
+      $request.body.email,
+      $request.body.otpNew
+    );
 
     IF $otpOld = NONE OR $otpNew = NONE {
       RETURN {

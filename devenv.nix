@@ -3,7 +3,6 @@ let
   nixsurrealdb = inputs.nixsurrealdb.packages."${pkgs.stdenv.hostPlatform.system}";
 in
 {
-  env.NIXPKGS_ALLOW_UNFREE = "1";
   languages.nix.enable = true;
 
   git-hooks.hooks = {
@@ -50,6 +49,7 @@ in
       nixfmt
     ]
     ++ (with nixsurrealdb; [
+      surrealdb
       surrealkit
       surrealql-language-server
     ]);

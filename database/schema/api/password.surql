@@ -5,7 +5,7 @@ DEFINE API "/password"
     api::res::body()
   PERMISSIONS WHERE !!$auth
   THEN {
-    LET $otp = fn::get_otp($auth.email, $request.body.otp);
+    LET $otp: option<object> = fn::get_otp($auth.email, $request.body.otp);
 
     IF $otp = NONE OR $request.body.pass = NONE {
       RETURN {
@@ -29,7 +29,10 @@ DEFINE API "/password"
     api::res::body()
   PERMISSIONS WHERE $auth = NONE
   THEN {
-    LET $otp = fn::get_otp($request.body.email, $request.body.otp);
+    LET $otp: option<object> = fn::get_otp(
+      $request.body.email,
+      $request.body.otp
+    );
 
     IF $otp = NONE OR $request.body.pass = NONE {
       RETURN {
