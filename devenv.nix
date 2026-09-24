@@ -53,9 +53,6 @@ in
         shellcheck.enable = true;
         shfmt.enable = true;
 
-        # Go
-        gofmt.enable = true;
-
         # Markdown
         mdformat.enable = true;
 
